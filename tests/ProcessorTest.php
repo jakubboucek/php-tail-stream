@@ -50,41 +50,42 @@ class ProcessorTest extends TestCase
         Assert::equal([$occurrences, $position], $result);
     }
 
-    public function dataSeekInputForLines(): array
+    public function dataSearchLines(): array
     {
         return [
-            ['a....a....a....a....a', 'a', 1, 1024, 20],
-            ['b....b....b....b....b', 'b', 2, 1024, 15],
-            ['c....c....c....c....c', 'c', 3, 1024, 10],
-            ['d....d....d....d....d', 'd', 4, 1024, 5],
-            ['e....e....e....e....e', 'e', 5, 1024, 0],
-            ['f....f....f....f....f', 'f', 6, 1024, 0],
-            ['g....g....g....g....g', 'g', 1, 10, 20],
-            ['h....h....h....h....h', 'h', 2, 10, 15],
-            ['i....i....i....i....i', 'i', 3, 10, 10],
-            ['j....j....j....j....j', 'j', 4, 10, 5],
-            ['k....k....k....k....k', 'k', 5, 10, 0],
-            ['l....l....l....l....l', 'l', 6, 10, 0],
-            ['.', 'm', 1, 1024, 0],
-            ['.', 'n', 10, 10, 0],
-            ['', 'o', 1, 1024, 0],
-            ['', 'p', 10, 10, 0],
-            ['qqqqq', 'q', 5, 1024, 0],
-            ['rrrrrrrrrr', 'r', 5, 1024, 5],
-            ['ssssssssss', 's', 5, 1, 5],
-            ['..........', 't', 5, 1, 0],
+            ['a....a....a....a....a', 'a', 1, 1024, 16,20],
+            ['b....b....b....b....b', 'b', 2, 1024, 11,20],
+            ['c....c....c....c....c', 'c', 3, 1024, 6,20],
+            ['d....d....d....d....d', 'd', 4, 1024, 1,20],
+            ['e....e....e....e....e', 'e', 5, 1024, 0,20],
+            ['f....f....f....f....f', 'f', 6, 1024, 0,20],
+            ['g....g....g....g....g', 'g', 1, 10, 16,20],
+            ['h....h....h....h....h', 'h', 2, 10, 11,20],
+            ['i....i....i....i....i', 'i', 3, 10, 6,20],
+            ['j....j....j....j....j', 'j', 4, 10, 1,20],
+            ['k....k....k....k....k', 'k', 5, 10, 0,20],
+            ['l....l....l....l....l', 'l', 6, 10, 0,20],
+            ['.', 'm', 1, 1024, 0,1],
+            ['.', 'n', 10, 10, 0,1],
+            ['', 'o', 1, 1024, 0,0],
+            ['', 'p', 10, 10, 0,0],
+            ['qqqqq', 'q', 5, 1024, 0,4],
+            ['rrrrrrrrrr', 'r', 5, 1024, 5,9],
+            ['ssssssssss', 's', 5, 1, 5,9],
+            ['..........', 't', 5, 1, 0,10],
         ];
     }
 
     /**
-     * @dataProvider dataSeekInputForLines
+     * @dataProvider dataSearchLines
      */
-    public function testSeekInputForLines(
+    public function testSearchLines(
         string $content,
         string $delimiter,
         int $count,
         int $blocksSizes,
-        int $expectedposition
+        int $expectedStart,
+        int $expectedEnd,
     ): void {
         $stream = fopen('php://memory', 'wb+');
         fwrite($stream, $content);
@@ -92,20 +93,20 @@ class ProcessorTest extends TestCase
 
         $processor = new Processor();
         // Method is private - use closure
-        $method = new ReflectionMethod(Processor::class, 'seekInputForLines');
+        $method = new ReflectionMethod(Processor::class, 'searchLines');
         $closure = $method->getClosure($processor);
-        $closure($count, $stream, $blocksSizes, $delimiter);
+        [$start, $end] = $closure($count, $stream, $blocksSizes, $delimiter);
 
-        $position = ftell($stream);
         fclose($stream);
-        Assert::equal($expectedposition, $position);
+
+        Assert::equal([$expectedStart, $expectedEnd], [$start, $end]);
     }
 
     public function dataLines(): array
     {
         return [
-            ['a....a....a....a....a', 'a....a....a', 'a', 3, 1024],
-            ['....b....b....b....', 'b....b....b....', 'b', 3, 1024],
+            ['a....a....a....a....a', '....a....a....', 'a', 3, 1024],
+            ['....b....b....b....', '....b....b....', 'b', 3, 1024],
         ];
     }
 

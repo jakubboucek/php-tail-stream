@@ -24,11 +24,20 @@ class Input
 
     public function toFile(string $file): void
     {
-        $this->tail->lines(10, $this->input, new File($file, FileMode::Write));
+        $this->tail->process($this->input, new File($file, FileMode::Write));
     }
 
-    public function toStream($stream): Output
+    public function toStream($stream): void
     {
-        return new Output($this->tail, new ExternalStream($stream));
+        $this->tail->process($this->input, new ExternalStream($stream));
+    }
+
+    public function toOutput(): void
+    {
+        $output = defined('STDOUT')
+            ? new ExternalStream(STDOUT)
+            : new File('php://output', FileMode::Write);
+
+        $this->tail->process($this->input, $output);
     }
 }
