@@ -33,7 +33,7 @@ Tail::lines(10)->fromStream($f)->toOutput();
 
 // Output the last 10 lines from the stream
 ```
-
+    
 > [!NOTE]  
 > Source stream MUST allow seeking! You can't use some stream types, like HTTP stream for example.
 
