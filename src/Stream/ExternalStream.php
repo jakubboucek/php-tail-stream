@@ -26,7 +26,7 @@ class ExternalStream implements Stream
 
     public function isSeekable(): bool
     {
-        return stream_get_meta_data($this->stream)['seekable'] ?? false;
+        return stream_get_meta_data($this->stream)['seekable'];
     }
 
     /**
