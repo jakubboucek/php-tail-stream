@@ -17,6 +17,7 @@ jobs:
 
                 php:
                     - '8.3'
+                    - '8.4'
 
         name: ${{ matrix.actions.name }} at PHP ${{ matrix.php }}
         runs-on: ubuntu-latest
