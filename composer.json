@@ -13,7 +13,7 @@
         "php": "^8.3"
     },
     "require-dev": {
-        "nette/tester": "^2.5"
+        "nette/tester": "2.5.x-dev"
     },
     "autoload": {
         "psr-4": {
