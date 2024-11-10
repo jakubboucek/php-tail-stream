@@ -19,15 +19,15 @@ class Setup
         $this->tail = $tail;
     }
 
-    public function fromFile(string $file):Input
+    public function fromFile(string $file): Input
     {
         return new Input($this->tail, new File($file, FileMode::Read));
     }
 
-    public function fromStream($stream):Input
+    public function fromStream($stream): Input
     {
         $input = new ExternalStream($stream);
-        if(!$input->isSeekable()) {
+        if (!$input->isSeekable()) {
             throw new InvalidArgumentException('Unable to use non-seekable stream type as input.');
         }
         return new Input($this->tail, $input);

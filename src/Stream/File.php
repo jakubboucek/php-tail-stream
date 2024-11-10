@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace JakubBoucek\Tail\Stream;
 
-use JakubBoucek\Tail\Exceptions\InvalidArgumentException;
 use JakubBoucek\Tail\Exceptions\InvalidStateException;
 use JakubBoucek\Tail\Exceptions\IOException;
 
