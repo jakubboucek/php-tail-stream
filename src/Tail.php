@@ -15,7 +15,7 @@ class Tail
     private Units $units;
 
     /**
-     * @param Units $units (unised - for future use)
+     * @param Units $units (unused - for future use)
      */
     public function __construct(int $count = 10, Units $units = Units::Lines)
     {

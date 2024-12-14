@@ -10,7 +10,6 @@ use LogicException;
 
 class Processor
 {
-
     public function lines(
         int $count,
         Stream $inputStream,
