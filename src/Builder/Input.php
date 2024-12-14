@@ -9,10 +9,10 @@ use JakubBoucek\Tail\Stream\File;
 use JakubBoucek\Tail\Stream\FileMode;
 use JakubBoucek\Tail\Stream\Stream;
 use JakubBoucek\Tail\Tail;
+use Traversable;
 
 class Input
 {
-
     private Stream $input;
     private Tail $tail;
 
@@ -24,12 +24,12 @@ class Input
 
     public function toFile(string $file): void
     {
-        $this->tail->process($this->input, new File($file, FileMode::Write));
+        $this->tail->processStream($this->input, new File($file, FileMode::Write));
     }
 
     public function toStream($stream): void
     {
-        $this->tail->process($this->input, new ExternalStream($stream));
+        $this->tail->processStream($this->input, new ExternalStream($stream));
     }
 
     public function toOutput(): void
@@ -38,6 +38,11 @@ class Input
             ? new ExternalStream(STDOUT)
             : new File('php://output', FileMode::Write);
 
-        $this->tail->process($this->input, $output);
+        $this->tail->processStream($this->input, $output);
+    }
+
+    public function toIterator(int $maxLineSize = Tail::DefaultMaxLineSize): Traversable
+    {
+        return $this->tail->processIterator($this->input, $maxLineSize);
     }
 }

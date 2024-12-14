@@ -12,6 +12,7 @@ use Tester\TestCase;
 
 require __DIR__ . '/bootstrap.php';
 
+/** @testCase */
 class ProcessorTest extends TestCase
 {
     public function dataSearchInBlock(): array
@@ -130,16 +131,48 @@ class ProcessorTest extends TestCase
         fseek($input, 0);
 
         $processor = new Processor();
-        // Method is private - use closure
-        $method = new ReflectionMethod(Processor::class, 'lines');
-        $closure = $method->getClosure($processor);
-        $closure($count, $inputSteam, $outputStream, $blocksSizes, $delimiter);
+        $processor->lines($count, $inputSteam, $outputStream, $blocksSizes, $delimiter);
 
         fseek($output, 0);
         $result = stream_get_contents($output);
 
         fclose($input);
         fclose($output);
+
+        Assert::equal($expected, $result);
+    }
+
+    public function dataLinesIterator(): array
+    {
+        return [
+            ['a.......a......a.....a....a', ['......','.....','....'], 'a', 3, 1024, 1_000_000],
+            ['....b....b....b....', ['....','....','....'], 'b', 3, 1024, 1_000_000],
+        ];
+    }
+    /**
+     * @dataProvider dataLinesIterator
+     */
+    public function testLinesIterator(
+        string $content,
+        array $expected,
+        string $delimiter,
+        int $count,
+        int $blocksSizes,
+        int $maxLineSize,
+    ):void
+    {
+        $input = fopen('php://memory', 'wb+');
+        $inputSteam = new ExternalStream($input);
+
+        fwrite($input, $content);
+        fseek($input, 0);
+
+        $processor = new Processor();
+        $iterator = $processor->linesIterator($count, $inputSteam, $blocksSizes, $maxLineSize, $delimiter);
+
+        $result = iterator_to_array($iterator);
+
+        fclose($input);
 
         Assert::equal($expected, $result);
     }

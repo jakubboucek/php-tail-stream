@@ -7,6 +7,7 @@ namespace JakubBoucek\Tail;
 use JakubBoucek\Tail\Exceptions\IOException;
 use JakubBoucek\Tail\Stream\Stream;
 use LogicException;
+use Traversable;
 
 class Processor
 {
@@ -29,6 +30,38 @@ class Processor
 
         $inputStream->close();
         $outputStream->close();
+    }
+
+    /**
+     * @param int $count Count if lines
+     * @param Stream $inputStream Input stream
+     * @param int $blocksSizes Size of blocks to read during backward search of lines - affects consumed memory
+     * @param int $maxLineSize Size of maximal size of line - if line is longer, it will be split
+     * @param string $delimiter Delimiter of lines
+     * @return Traversable<string> Searched lines as string
+     */
+    public function linesIterator(
+        int $count,
+        Stream $inputStream,
+        int $blocksSizes,
+        int $maxLineSize,
+        string $delimiter
+    ): Traversable {
+        $input = $inputStream->open();
+
+        [$start, $end] = $this->searchLines($count, $input, $blocksSizes, $delimiter);
+
+        $this->seek($input, $start);
+
+        do {
+            $line = stream_get_line($input, $maxLineSize, $delimiter);
+            if ($line === false) {
+                break;
+            }
+            yield $line;
+        } while (ftell($input) < $end);
+
+        $inputStream->close();
     }
 
     /**

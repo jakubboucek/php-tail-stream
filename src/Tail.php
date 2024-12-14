@@ -6,34 +6,35 @@ namespace JakubBoucek\Tail;
 
 use JakubBoucek\Tail\Builder\Setup;
 use JakubBoucek\Tail\Stream\Stream;
+use Traversable;
 
 class Tail
 {
+    public const DefaultMaxLineSize = 2 ** 20;
+
     private int $blockSize = 4096;
     private string $rowDelimiter = "\n";
     private int $count;
-    private Units $units;
 
-    /**
-     * @param Units $units (unused - for future use)
-     */
-    public function __construct(int $count = 10, Units $units = Units::Lines)
+    public function __construct(int $count = 10)
     {
         $this->count = $count;
-        $this->units = $units;
     }
 
     public static function lines(int $count): Setup
     {
-        return new Setup(new Tail($count, Units::Lines));
+        return new Setup(new Tail($count));
     }
 
-    public function process(Stream $input, Stream $output): void
+    public function processStream(Stream $input, Stream $output): void
     {
         $processor = new Processor();
-        match ($this->units) {
-            Units::Lines => $processor->lines($this->count, $input, $output, $this->blockSize, $this->rowDelimiter),
-            //Units::Bytes => $processor->bytes($this->count, $input, $output, $this->bufferSize),
-        };
+        $processor->lines($this->count, $input, $output, $this->blockSize, $this->rowDelimiter);
+    }
+
+    public function processIterator(Stream $input, int $maxLineSize = self::DefaultMaxLineSize): Traversable
+    {
+        $processor = new Processor();
+        return $processor->linesIterator($this->count, $input, $this->blockSize, $maxLineSize, $this->rowDelimiter);
     }
 }

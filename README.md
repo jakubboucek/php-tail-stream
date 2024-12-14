@@ -41,8 +41,16 @@ You can write result to file or another stream, use methods:
 
 ```php
  ->toFile('path/to/your/output.txt'); // Write to file
- ->toStream($stream);                 // Write to stream 
+ ->toStream($stream);                 // Write to stream
+ ->toIterator();                      // Get iterator containting lines as strings
 ```
+
+> [!WARNING]  
+> The `->toIterator()` method reads the every line to memory. Use it carefully - when you load huge file with very long
+> lines, it can cause memory issues. Be aware especially when you load unknown files, when file doesn't have line
+> separators (e.g. if you accidentally load binary file), whole file will be loaded to memory. To prevent unexpected
+> behavior is method limited to 1MB of data. You can change this limit by passing the argument `$maxLineSize`.
+
 
 ## License
 
